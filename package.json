@@ -1,6 +1,11 @@
 {
-  "name": "HelloWorldNodeJS",
+  "name": "FlowDevDocs",
   "dependencies": {
-    "open": "^8.4.0"
-  }
+    "fuzzysort": "^2.0.4",
+    "fzf": "^0.5.2",
+    "node-fetch": "^3.3.2",
+    "open": "^8.4.0",
+    "sync-fetch": "^0.5.2"
+  },
+  "type": "module"
 }
