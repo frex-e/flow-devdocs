@@ -1,3 +1,3 @@
 rm opts.json
-rm -r docs
-node main.js '{"method":"toggle","parameters":["cpp", "C++"]}' 
+rm -r indexes
+node main.js '{"method":"toggle","parameters":["haskell~9", "Haskell 9"]}' 
