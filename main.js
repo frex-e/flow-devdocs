@@ -1,6 +1,7 @@
 // I apologise
 import fuzzysort from 'fuzzysort'
 import fetch from 'node-fetch'
+import open from 'open'
 
 import * as fs from 'fs'
 import { json } from 'stream/consumers'
@@ -48,19 +49,12 @@ try {
   })
 }
 
-// LOAD ENTRIES
-let entries = (await Promise.all(
-  opts.installedLangs.map(async s =>
-    JSON.parse(
-      (await fs.promises.readFile(`indexes/${s}.json`)).toString())
-  )
-)).flat();
 
 if (method === "query") {
-  if (parameters[0].toLowerCase().startsWith("install")) {
-    const searchQuery = parameters[0].toLowerCase().slice("install".length);
+  if (parameters[0].toLowerCase().startsWith("toggle")) {
+    const searchQuery = parameters[0].toLowerCase().slice("toggle".length);
 
-    const res = fuzzysort.go(searchQuery, docs, { key: "slug", limit: 5, threshold: -50 })
+    const res = fuzzysort.go(searchQuery, docs, { key: "slug", limit: 5 })
 
     const langs = res.map((v) => ({
       Title: v.obj.name + " " + (v.obj.version || ""),
@@ -78,23 +72,15 @@ if (method === "query") {
         result: langs
       }
     ))
-    //  {
-    //   console.log(JSON.stringify(
-    //     {
-    //       "result": [{
-    //         "Title": "Found Nothing :(",
-    //         "Subtitle": JSON.stringify(langs),
-    //         "JsonRPCAction": {
-    //           "method": "do_something_for_query",
-    //           "parameters": ["https://github.com/Flow-Launcher/Flow.Launcher"]
-    //         },
-    //         "IcoPath": "Images\\app.png"
-    //       }]
-    //     }
-    //   ))
-    // }
 
   } else {
+    // LOAD ENTRIES
+    let entries = (await Promise.all(
+      opts.installedLangs.map(async s =>
+        JSON.parse(
+          (await fs.promises.readFile(`indexes/${s}.json`)).toString())
+      )
+    )).flat();
     const res = fuzzysort.go(parameters[0], entries, {
       keys: ["slug", "name", "type"], limit: 4,
       scoreFn: a => Math.max(a[0] ? a[0].score : -30, -30) * 3 + Math.max(a[1] ? a[1].score : -50, -50) + Math.max(a[2] ? a[2].score : -50, -50) / 2
@@ -152,7 +138,7 @@ if (method == "toggle") {
 
   } else {
     // Disabling
-    fs.rm(`indexes/${slug}.json`)
+    fs.rm(`indexes/${slug}.json`, (err) => { })
     opts.installedLangs.splice(opts.installedLangs.indexOf(slug))
     saveOpts()
   }
